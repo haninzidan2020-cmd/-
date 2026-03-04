@@ -339,3 +339,71 @@ export default function App() {
     </div>
   );
 }
+// 1. الاستيراد (Imports) - يكون في أول سطر في الملف
+import { useState, useEffect } from 'react';
+import './index.css'; // تأكد إن ملف الـ CSS مستدعى
+
+export default function App() {
+  // --------------------------------------------------------
+  // 2. المنطق (Logic) - حطه بعد تعريف الـ Component وقبل الـ return
+  // --------------------------------------------------------
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault(); // منع المتصفح من إظهار رسالته الخاصة
+      setInstallPrompt(e); // تخزين الرسالة لإظهار الزرار الخاص بنا
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt(); // إظهار شاشة التثبيت
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      console.log('تم التثبيت بنجاح');
+    }
+    setInstallPrompt(null); // إخفاء الزرار بعد المحاولة
+  };
+  // --------------------------------------------------------
+
+  return (
+    <div className="min-h-screen bg-gray-50 font-sans">
+      {/* --- هنا الكود الحالي بتاعك (الهيدر، المحتوى، إلخ) --- */}
+      
+      <main className="p-4">
+        <h1 className="text-2xl font-bold text-emerald-700">مرحباً بك في صحتك</h1>
+        {/* باقي محتوى التطبيق... */}
+      </main>
+
+      {/* -------------------------------------------------------- */}
+      {/* 3. الزرار (UI) - حطه في آخر الـ div الرئيسي عشان يظهر فوق المحتوى */}
+      {/* -------------------------------------------------------- */}
+      {installPrompt && (
+        <div className="fixed bottom-6 left-4 right-4 bg-emerald-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-50 animate-bounce border border-emerald-400">
+          <div className="flex items-center gap-3">
+            <div className="bg-white p-2 rounded-lg text-emerald-600 font-bold">App</div>
+            <div>
+              <h3 className="font-bold text-sm text-right">ثبت تطبيق "صحتك"</h3>
+              <p className="text-[10px] text-emerald-100 text-right">استخدمه كبرنامج سريع على موبايلك</p>
+            </div>
+          </div>
+          <button 
+            onClick={handleInstallClick}
+            className="bg-white text-emerald-700 px-4 py-2 rounded-xl font-bold text-sm active:scale-95 transition-transform"
+          >
+            تثبيت
+          </button>
+        </div>
+      )}
+      {/* -------------------------------------------------------- */}
+
+    </div>
+  );
+}
