@@ -5,7 +5,7 @@ import FoodLogger from './components/FoodLogger';
 import Alerts from './components/Alerts';
 import Stats from './components/Stats';
 import { UserProfile, DailyIntake, DailyGoals, FoodItem, DailyRecord, MedicalLog, ConsumedFood } from './types';
-import { Activity, BarChart2, Home, Settings, Users, Plus, Trash2, X, AlertOctagon } from 'lucide-react';
+import { Activity, BarChart2, Home, Settings, Users, Plus, Trash2, X, AlertOctagon, Download } from 'lucide-react';
 
 const PROFILES_KEY = 'health_tracker_profiles';
 const ACTIVE_PROFILE_KEY = 'health_tracker_active_profile';
@@ -19,6 +19,32 @@ export default function App() {
   const [showProfileSwitch, setShowProfileSwitch] = useState(false);
   const [showMedicalWarning, setShowMedicalWarning] = useState<{show: boolean, message: string}>({show: false, message: ''});
   
+  // --- منطق زر التثبيت PWA ---
+  const [installPrompt, setInstallPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: Event) => {
+      e.preventDefault();
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    const { outcome } = await installPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setInstallPrompt(null);
+    }
+  };
+  // -------------------------
+
   const [profiles, setProfiles] = useState<UserProfile[]>(() => {
     const saved = localStorage.getItem(PROFILES_KEY);
     return saved ? JSON.parse(saved) : [];
@@ -156,7 +182,6 @@ export default function App() {
   };
 
   const handleAddWater = (amount: number) => setIntake(prev => ({ ...prev, water: prev.water + amount }));
-
   const handleAddWalking = (minutes: number) => setIntake(prev => ({ ...prev, walkingMinutes: (prev.walkingMinutes || 0) + minutes }));
 
   const handleDeleteRecord = (id: string) => {
@@ -202,7 +227,6 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50 font-sans text-gray-900">
       
-      {/* 🚀 الشريط العلوي الجديد للمبرمج أعلى الواجهة */}
       <div className="bg-emerald-900 text-emerald-50 py-2 px-4 text-xs sm:text-sm flex flex-col sm:flex-row justify-center sm:justify-between items-center gap-1 sm:gap-4 z-20 shadow-inner">
         <span className="font-bold tracking-wide">برمجة وتصميم: م/ مصطفى زيدان</span>
         <span dir="ltr" className="font-medium opacity-90 hover:opacity-100 transition-opacity flex items-center gap-1">
@@ -278,6 +302,27 @@ export default function App() {
         )}
       </main>
 
+      {/* --- زر تثبيت التطبيق (PWA Button) --- */}
+      {installPrompt && (
+        <div className="fixed bottom-6 left-4 right-4 bg-emerald-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-[100] animate-in slide-in-from-bottom-10 duration-500 border border-emerald-400">
+          <div className="flex items-center gap-3">
+            <div className="bg-white p-2 rounded-lg text-emerald-600 shadow-sm">
+              <Download className="w-5 h-5" />
+            </div>
+            <div className="text-right">
+              <h3 className="font-bold text-sm">ثبّت تطبيق "صحتك"</h3>
+              <p className="text-[10px] text-emerald-100 opacity-90">استخدمه كبرنامج سريع وسهل الوصول</p>
+            </div>
+          </div>
+          <button 
+            onClick={handleInstallClick}
+            className="bg-white text-emerald-700 px-5 py-2 rounded-xl font-bold text-sm active:scale-95 transition-transform whitespace-nowrap"
+          >
+            تثبيت الآن
+          </button>
+        </div>
+      )}
+
       {showMedicalWarning.show && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4 animate-in fade-in duration-300">
           <div className="bg-white rounded-2xl p-6 max-w-sm w-full shadow-2xl relative border-t-8 border-rose-600 animate-in zoom-in-95 duration-300 text-center">
@@ -336,74 +381,6 @@ export default function App() {
           </div>
         </div>
       )}
-    </div>
-  );
-}
-// 1. الاستيراد (Imports) - يكون في أول سطر في الملف
-import { useState, useEffect } from 'react';
-import './index.css'; // تأكد إن ملف الـ CSS مستدعى
-
-export default function App() {
-  // --------------------------------------------------------
-  // 2. المنطق (Logic) - حطه بعد تعريف الـ Component وقبل الـ return
-  // --------------------------------------------------------
-  const [installPrompt, setInstallPrompt] = useState<any>(null);
-
-  useEffect(() => {
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault(); // منع المتصفح من إظهار رسالته الخاصة
-      setInstallPrompt(e); // تخزين الرسالة لإظهار الزرار الخاص بنا
-    };
-
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
-  }, []);
-
-  const handleInstallClick = async () => {
-    if (!installPrompt) return;
-    installPrompt.prompt(); // إظهار شاشة التثبيت
-    const { outcome } = await installPrompt.userChoice;
-    if (outcome === 'accepted') {
-      console.log('تم التثبيت بنجاح');
-    }
-    setInstallPrompt(null); // إخفاء الزرار بعد المحاولة
-  };
-  // --------------------------------------------------------
-
-  return (
-    <div className="min-h-screen bg-gray-50 font-sans">
-      {/* --- هنا الكود الحالي بتاعك (الهيدر، المحتوى، إلخ) --- */}
-      
-      <main className="p-4">
-        <h1 className="text-2xl font-bold text-emerald-700">مرحباً بك في صحتك</h1>
-        {/* باقي محتوى التطبيق... */}
-      </main>
-
-      {/* -------------------------------------------------------- */}
-      {/* 3. الزرار (UI) - حطه في آخر الـ div الرئيسي عشان يظهر فوق المحتوى */}
-      {/* -------------------------------------------------------- */}
-      {installPrompt && (
-        <div className="fixed bottom-6 left-4 right-4 bg-emerald-600 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center z-50 animate-bounce border border-emerald-400">
-          <div className="flex items-center gap-3">
-            <div className="bg-white p-2 rounded-lg text-emerald-600 font-bold">App</div>
-            <div>
-              <h3 className="font-bold text-sm text-right">ثبت تطبيق "صحتك"</h3>
-              <p className="text-[10px] text-emerald-100 text-right">استخدمه كبرنامج سريع على موبايلك</p>
-            </div>
-          </div>
-          <button 
-            onClick={handleInstallClick}
-            className="bg-white text-emerald-700 px-4 py-2 rounded-xl font-bold text-sm active:scale-95 transition-transform"
-          >
-            تثبيت
-          </button>
-        </div>
-      )}
-      {/* -------------------------------------------------------- */}
-
     </div>
   );
 }
