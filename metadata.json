@@ -1,0 +1,5 @@
+{
+  "name": "Health Tracker Pro",
+  "description": "A health web application that calculates daily nutritional needs in grams and liters, tracking water, protein, carbs, sugar, and fiber/veggies with an Egyptian food database.",
+  "requestFramePermissions": []
+}
