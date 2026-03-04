@@ -9,13 +9,9 @@
   --color-emerald-900: #064e3b;
 }
 
-@layer base {
-  * {
-    font-family: 'Cairo', sans-serif;
-  }
-  body {
-    @apply bg-gray-50 text-gray-900;
-  }
-}
-
 @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap');
+
+@layer base {
+  * { font-family: 'Cairo', sans-serif; }
+  body { background-color: #f9fafb; color: #111827; margin: 0; }
+}
