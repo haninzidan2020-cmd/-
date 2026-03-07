@@ -261,14 +261,17 @@ export default function App() {
             {activeTab === 'today' ? (
               <div className="space-y-8">
                 <Alerts intake={intake} goals={goals} />
-                <Dashboard 
-                  intake={intake} 
-                  goals={goals} 
-                  profile={profile} 
-                  onAddMedicalLog={handleAddMedicalLog} 
-                  onRemoveFood={handleRemoveFood} 
-                  onAddWalking={handleAddWalking}
-                />
+<Dashboard 
+  intake={intake} 
+  goals={goals} 
+  profile={profile} 
+  onAddMedicalLog={handleAddMedicalLog} 
+  onRemoveFood={handleRemoveFood} 
+  onAddWalking={handleAddWalking}
+  onAddWater={handleAddWater}  // ⚠️ تأكد من وجود هذا السطر
+/>
+```
+
                 <FoodLogger onAddFood={handleAddFood} onAddWater={handleAddWater} />
               </div>
             ) : (
